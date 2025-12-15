@@ -1,4 +1,5 @@
-import { auth } from '../../../lib/auth';
+import { auth } from '../../lib/auth.js';
+import { toNodeHandler } from 'better-auth/node';
 
 export const config = {
     api: {
@@ -6,6 +7,9 @@ export const config = {
     },
 };
 
+// Convert better-auth handler to Vercel-compatible handler
+const nodeHandler = toNodeHandler(auth);
+
 export default async function handler(req, res) {
-    return auth.handler(req, res);
+    return nodeHandler(req, res);
 }
