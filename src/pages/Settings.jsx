@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 const Settings = ({ onMenuClick }) => {
-    const { t } = useTranslation();
     const navigate = useNavigate();
     const [currency, setCurrency] = useState('IDR');
     const [notifications, setNotifications] = useState(true);
@@ -28,10 +26,6 @@ const Settings = ({ onMenuClick }) => {
         navigate('/settings/appearance');
     };
 
-    const handleLanguage = () => {
-        navigate('/settings/language');
-    };
-
     const handleCurrency = () => {
         const newCurr = currency === 'IDR' ? 'USD' : 'IDR';
         setCurrency(newCurr);
@@ -46,47 +40,41 @@ const Settings = ({ onMenuClick }) => {
 
     const settingsSections = [
         {
-            title: t('settings.accountPreferences'),
+            title: 'Account Preferences',
             items: [
                 {
                     icon: "person",
-                    label: t('settings.profile'),
-                    desc: t('settings.profileDesc'),
+                    label: "Profile Information",
+                    desc: "Update your account details",
                     action: handleProfile
                 },
                 {
                     icon: "lock",
-                    label: t('settings.security'),
-                    desc: t('settings.securityDesc'),
+                    label: "Security",
+                    desc: "Two-factor authentication and password",
                     action: handleSecurity
                 },
                 {
                     icon: "notifications",
-                    label: t('settings.notifications'),
-                    desc: t('settings.notificationsDesc'),
+                    label: "Notifications",
+                    desc: "Manage your alerts",
                     action: handleNotifications
                 }
             ]
         },
         {
-            title: t('settings.appSettings'),
+            title: 'App Settings',
             items: [
                 {
                     icon: "palette",
-                    label: t('settings.appearance'),
-                    desc: t('settings.appearanceDesc'),
+                    label: "Appearance",
+                    desc: "Dark mode enabled by default",
                     action: handleAppearance
                 },
                 {
-                    icon: "language",
-                    label: t('settings.language'),
-                    desc: "English / Indonesia",
-                    action: handleLanguage
-                },
-                {
                     icon: "currency_exchange",
-                    label: t('settings.currency'),
-                    desc: t('settings.currencyDesc'),
+                    label: "Currency",
+                    desc: "Indonesian Rupiah (IDR)",
                     action: handleCurrency
                 }
             ]
@@ -97,7 +85,7 @@ const Settings = ({ onMenuClick }) => {
         <main className="flex-1 overflow-y-auto relative flex flex-col hide-scroll">
             <Header onMenuClick={onMenuClick} />
             <div className="p-8 flex flex-col gap-8 max-w-[1600px]">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{t('settings.title')}</h1>
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Settings</h1>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {settingsSections.map((section, idx) => (
@@ -127,13 +115,13 @@ const Settings = ({ onMenuClick }) => {
                     ))}
 
                     <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-white/5 p-6 flex flex-col gap-4 shadow-sm dark:shadow-none">
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('settings.dangerZone')}</h2>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">{t('settings.irreversibleAction')}</p>
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Danger Zone</h2>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Irreversible action for your account.</p>
                         <button
                             onClick={handleDeleteAccount}
-                            className="w-full py-3 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-50 text-red-600 dark:text-red-500 dark:hover:bg-red-500/10 transition-colors font-semibold"
+                            className="w-full py-3 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors font-semibold"
                         >
-                            {t('settings.deleteAccount')}
+                            Delete Account
                         </button>
                     </div>
                 </div>

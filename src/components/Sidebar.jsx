@@ -1,16 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
 const Sidebar = ({ isOpen }) => {
-    const { t } = useTranslation();
-
     const navItems = [
-        { path: "/", icon: "dashboard", label: t('sidebar.dashboard') },
-        { path: "/transactions", icon: "sync_alt", label: t('sidebar.transactions') },
-        { path: "/analytics", icon: "monitoring", label: t('sidebar.analytics') },
-        { path: "/wallets", icon: "wallet", label: t('sidebar.wallets') },
-        { path: "/settings", icon: "settings", label: t('sidebar.settings') }
+        { path: "/", icon: "dashboard", label: "Dashboard" },
+        { path: "/transactions", icon: "sync_alt", label: "Transactions" },
+        { path: "/analytics", icon: "monitoring", label: "Analytics" },
+        { path: "/wallets", icon: "wallet", label: "Wallets" },
+        { path: "/categories", icon: "category", label: "Categories" },
+        { path: "/settings", icon: "settings", label: "Settings" }
     ];
 
     return (
@@ -38,19 +36,8 @@ const Sidebar = ({ isOpen }) => {
                     </NavLink>
                 ))}
             </nav>
-            <div className="p-4 mt-auto">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-card-dark border border-slate-200 dark:border-white/5">
-                    <div className="bg-center bg-no-repeat bg-cover rounded-full h-10 w-10 border-2 border-primary"
-                        style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDQU70nWBBBZJulzKNaw2Z3YtwQIMxZ8AGQUF118O_gi4m1FFnmxiG3Qa-WIMC8c12KHQmlv_oII9VI_DZNs982NFOjOOcIKMI5bQPQG3F4rGXK3FQWYOjqdH0YeXawOuAerGdTHnYIDGT-MFHbE1ueZCRrecGD_sIz1SFZDVSXnYZ59Vmv_UpIoVMi7xhTHLEfbvcaxkCCvih6WBcB5iFBGRJw8TXl7sRoh7pUnpeIIjI03AcEcQQAq05mk1nPj0TtKOe3RHMuqOhm")' }}></div>
-                    <div className="flex flex-col overflow-hidden">
-                        <p className="text-slate-900 dark:text-white text-sm font-semibold truncate">Alex Johnson</p>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs truncate">Premium Plan</p>
-                    </div>
-                </div>
-            </div>
         </aside>
     );
-
 };
 
 export default Sidebar;

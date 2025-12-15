@@ -1,7 +1,120 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useData } from '../context/DataContext';
+
+// Format number to Indonesian Rupiah for display
+const formatCurrency = (amount) => {
+    if (!amount) return 'Rp 0';
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(amount).replace('IDR', 'Rp');
+};
+
+// Format number with thousand separators for input display
+const formatInputAmount = (value) => {
+    if (!value) return '';
+    // Remove non-digits
+    const numericValue = value.toString().replace(/\D/g, '');
+    // Format with dots as thousand separators
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+// Parse formatted input back to number
+const parseInputAmount = (value) => {
+    if (!value) return '';
+    // Remove all dots and return as number string
+    return value.replace(/\./g, '');
+};
 
 const Transactions = ({ onMenuClick }) => {
+    const navigate = useNavigate();
+    const { wallets, categories, addTransaction, loading } = useData();
+
     const [transactionType, setTransactionType] = useState('expense');
+    const [amount, setAmount] = useState('');
+    const [displayAmount, setDisplayAmount] = useState('');
+    const [selectedWallet, setSelectedWallet] = useState('');
+    const [selectedToWallet, setSelectedToWallet] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [transactionDate, setTransactionDate] = useState(new Date().toISOString().split('T')[0]);
+    const [note, setNote] = useState('');
+    const [description, setDescription] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
+
+    // Handle amount input change
+    const handleAmountChange = (e) => {
+        const inputValue = e.target.value;
+        const rawValue = parseInputAmount(inputValue);
+        setAmount(rawValue);
+        setDisplayAmount(formatInputAmount(rawValue));
+    };
+
+    // Filter categories based on transaction type
+    const filteredCategories = categories.filter(cat => {
+        if (transactionType === 'transfer') return false;
+        return cat.type === transactionType;
+    });
+
+    // Handle form submission
+    const handleSubmit = async () => {
+        setError('');
+
+        // Validation
+        if (!amount || parseFloat(amount) <= 0) {
+            setError('Please enter a valid amount');
+            return;
+        }
+        if (!selectedWallet) {
+            setError('Please select a wallet');
+            return;
+        }
+        if (transactionType === 'transfer' && !selectedToWallet) {
+            setError('Please select a destination wallet for transfer');
+            return;
+        }
+        if (transactionType !== 'transfer' && !selectedCategory) {
+            setError('Please select a category');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            await addTransaction({
+                walletId: selectedWallet,
+                toWalletId: transactionType === 'transfer' ? selectedToWallet : null,
+                categoryId: transactionType !== 'transfer' ? selectedCategory : null,
+                type: transactionType,
+                amount: parseFloat(amount),
+                description: description || null,
+                note: note || null,
+                transactionDate,
+            });
+
+            // Reset form and navigate back
+            navigate('/');
+        } catch (err) {
+            setError(err.message || 'Failed to add transaction');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Set default wallet when wallets load
+    React.useEffect(() => {
+        if (wallets.length > 0 && !selectedWallet) {
+            setSelectedWallet(wallets[0].id);
+        }
+    }, [wallets, selectedWallet]);
+
+
+    // Reset category when transaction type changes
+    React.useEffect(() => {
+        setSelectedCategory('');
+    }, [transactionType]);
 
     return (
         <main className="flex-1 flex flex-col h-full relative overflow-y-auto hide-scroll">
@@ -19,10 +132,21 @@ const Transactions = ({ onMenuClick }) => {
                         <p className="text-slate-500 dark:text-[#9db9b2] text-sm mt-1">Record a new expense, income, or transfer.</p>
                     </div>
                 </div>
-                <button aria-label="Close" className="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-[#283935] hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all duration-200">
+                <button
+                    onClick={() => navigate('/')}
+                    aria-label="Close"
+                    className="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-[#283935] hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all duration-200"
+                >
                     <span className="material-symbols-outlined">close</span>
                 </button>
             </header>
+
+            {/* Error Message */}
+            {error && (
+                <div className="mx-4 md:mx-8 mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm">
+                    {error}
+                </div>
+            )}
 
             {/* Form Container */}
             <div className="flex-1 p-4 md:p-8 flex justify-center">
@@ -83,77 +207,142 @@ const Transactions = ({ onMenuClick }) => {
                             <div className="bg-white dark:bg-[#182a25] p-8 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm flex flex-col items-center justify-center gap-4 text-center group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                                 <label className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-[#5e7c74]" htmlFor="amount">Enter Amount</label>
                                 <div className="relative w-full flex items-center justify-center">
-                                    <span className="text-4xl text-slate-400 dark:text-[#5e7c74] absolute left-4 lg:left-8 font-light">Rp</span>
-                                    <input autoFocus className="w-full bg-transparent border-none text-center text-4xl md:text-6xl font-black text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-[#283935] focus:ring-0 p-0 caret-primary" id="amount" placeholder="0" type="number" />
+                                    <span className="text-3xl md:text-4xl text-slate-400 dark:text-[#5e7c74] absolute left-4 lg:left-8 font-light">Rp</span>
+                                    <input
+                                        autoFocus
+                                        className="w-full bg-transparent border-none text-center text-3xl md:text-5xl font-black text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-[#283935] focus:ring-0 p-0 caret-primary"
+                                        id="amount"
+                                        placeholder="0"
+                                        type="text"
+                                        inputMode="numeric"
+                                        value={displayAmount}
+                                        onChange={handleAmountChange}
+                                    />
                                 </div>
                             </div>
+
                             {/* Wallet Source */}
                             <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm">
                                 <div className="flex items-center justify-between mb-4">
-                                    <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2]">Pay with</label>
-                                    <button className="text-primary text-xs font-bold hover:underline">Add New +</button>
+                                    <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2]">
+                                        {transactionType === 'transfer' ? 'From Wallet' : 'Pay with'}
+                                    </label>
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="flex items-center gap-4 p-3 rounded-2xl border border-slate-200 dark:border-[#283935] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1c2724] has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:dark:bg-primary/10 transition-all">
-                                        <div className="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
-                                            <span className="material-symbols-outlined">credit_card</span>
+                                    {loading ? (
+                                        <div className="animate-pulse space-y-3">
+                                            {[1, 2].map(i => (
+                                                <div key={i} className="h-16 bg-slate-100 dark:bg-[#1c2724] rounded-2xl"></div>
+                                            ))}
                                         </div>
-                                        <div className="flex-1">
-                                            <p className="font-bold text-slate-900 dark:text-white">Chase Sapphire</p>
-                                            <p className="text-xs text-slate-500 dark:text-[#9db9b2]">•••• 4242</p>
-                                        </div>
-                                        <input defaultChecked className="text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-transparent size-5" name="wallet" type="radio" value="card" />
-                                    </label>
-                                    <label className="flex items-center gap-4 p-3 rounded-2xl border border-slate-200 dark:border-[#283935] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1c2724] has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:dark:bg-primary/10 transition-all">
-                                        <div className="size-10 rounded-full bg-green-600 flex items-center justify-center text-white shadow-lg">
-                                            <span className="material-symbols-outlined">payments</span>
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="font-bold text-slate-900 dark:text-white">Cash</p>
-                                            <p className="text-xs text-slate-500 dark:text-[#9db9b2]">Balance: Rp 1.800.000</p>
-                                        </div>
-                                        <input className="text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-transparent size-5" name="wallet" type="radio" value="cash" />
-                                    </label>
+                                    ) : wallets.length === 0 ? (
+                                        <p className="text-slate-400 text-sm text-center py-4">No wallets found. Create one first.</p>
+                                    ) : (
+                                        wallets.map(wallet => (
+                                            <label
+                                                key={wallet.id}
+                                                className={`flex items-center gap-4 p-3 rounded-2xl border cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1c2724] transition-all ${selectedWallet === wallet.id
+                                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                                                    : 'border-slate-200 dark:border-[#283935]'
+                                                    }`}
+                                            >
+                                                <div className="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
+                                                    <span className="material-symbols-outlined">{wallet.icon || 'account_balance'}</span>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-bold text-slate-900 dark:text-white">{wallet.name}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-[#9db9b2]">{formatCurrency(parseFloat(wallet.balance))}</p>
+                                                </div>
+                                                <input
+                                                    className="text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-transparent size-5"
+                                                    name="wallet"
+                                                    type="radio"
+                                                    checked={selectedWallet === wallet.id}
+                                                    onChange={() => setSelectedWallet(wallet.id)}
+                                                />
+                                            </label>
+                                        ))
+                                    )}
                                 </div>
                             </div>
+
+                            {/* To Wallet (for transfers) */}
+                            {transactionType === 'transfer' && (
+                                <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm">
+                                    <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2] mb-4 block">To Wallet</label>
+                                    <div className="space-y-3">
+                                        {wallets.filter(w => w.id !== selectedWallet).map(wallet => (
+                                            <label
+                                                key={wallet.id}
+                                                className={`flex items-center gap-4 p-3 rounded-2xl border cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1c2724] transition-all ${selectedToWallet === wallet.id
+                                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                                                    : 'border-slate-200 dark:border-[#283935]'
+                                                    }`}
+                                            >
+                                                <div className="size-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg">
+                                                    <span className="material-symbols-outlined">{wallet.icon || 'account_balance'}</span>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-bold text-slate-900 dark:text-white">{wallet.name}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-[#9db9b2]">{formatCurrency(parseFloat(wallet.balance))}</p>
+                                                </div>
+                                                <input
+                                                    className="text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-transparent size-5"
+                                                    name="to_wallet"
+                                                    type="radio"
+                                                    checked={selectedToWallet === wallet.id}
+                                                    onChange={() => setSelectedToWallet(wallet.id)}
+                                                />
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Right Column: Details */}
                         <div className="lg:col-span-7 flex flex-col gap-6">
-                            {/* Category Selection */}
+                            {/* Category Selection (not for transfers) */}
+                            {transactionType !== 'transfer' && (
+                                <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2]">Category</label>
+                                    </div>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                                        {filteredCategories.map((cat) => (
+                                            <button
+                                                key={cat.id}
+                                                type="button"
+                                                onClick={() => setSelectedCategory(cat.id)}
+                                                className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border focus:outline-none active:scale-95 transition-all group ${selectedCategory === cat.id
+                                                    ? 'ring-2 ring-primary bg-primary/10 dark:bg-primary/10 border-transparent'
+                                                    : 'bg-slate-100 dark:bg-[#1c2724] hover:bg-slate-200 dark:hover:bg-[#283935] border-transparent'
+                                                    }`}
+                                            >
+                                                <div style={{ color: selectedCategory === cat.id ? '#13ecb6' : (cat.color || '#9db9b2') }}>
+                                                    <span className="material-symbols-outlined text-[28px]">{cat.icon || 'category'}</span>
+                                                </div>
+                                                <span className={`text-xs font-medium ${selectedCategory === cat.id ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-[#9db9b2]'}`}>
+                                                    {cat.name}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Description */}
                             <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm">
-                                <div className="flex items-center justify-between mb-4">
-                                    <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2]">Category</label>
-                                    <button className="text-xs font-medium text-slate-400 dark:text-[#5e7c74] hover:text-white flex items-center gap-1">
-                                        View All <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-                                    </button>
-                                </div>
-                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                                    {/* Category Item: Active */}
-                                    <button className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-slate-100 dark:bg-[#1c2724] hover:bg-slate-200 dark:hover:bg-[#283935] border border-transparent focus:outline-none focus:ring-2 focus:ring-primary active:scale-95 transition-all group selected ring-2 ring-primary bg-primary/10 dark:bg-primary/10">
-                                        <div className="text-primary">
-                                            <span className="material-symbols-outlined text-[28px]">restaurant</span>
-                                        </div>
-                                        <span className="text-xs font-medium text-slate-900 dark:text-white">Food</span>
-                                    </button>
-                                    {/* Category Items: Default */}
-                                    {[
-                                        { icon: 'commute', label: 'Transport' },
-                                        { icon: 'shopping_bag', label: 'Shopping' },
-                                        { icon: 'home', label: 'Rent' },
-                                        { icon: 'movie', label: 'Entertainment' },
-                                        { icon: 'medical_services', label: 'Health' },
-                                        { icon: 'school', label: 'Education' },
-                                        { icon: 'more_horiz', label: 'More' }
-                                    ].map((cat, index) => (
-                                        <button key={index} className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-slate-100 dark:bg-[#1c2724] hover:bg-slate-200 dark:hover:bg-[#283935] border border-transparent focus:outline-none focus:ring-2 focus:ring-primary active:scale-95 transition-all group">
-                                            <div className="text-slate-500 dark:text-[#9db9b2] group-hover:text-primary transition-colors">
-                                                <span className="material-symbols-outlined text-[28px]">{cat.icon}</span>
-                                            </div>
-                                            <span className="text-xs font-medium text-slate-600 dark:text-[#9db9b2] group-hover:text-slate-900 dark:group-hover:text-white">{cat.label}</span>
-                                        </button>
-                                    ))}
-                                </div>
+                                <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2] mb-3 block" htmlFor="description">
+                                    Description <span className="text-xs font-normal opacity-50">(Optional)</span>
+                                </label>
+                                <input
+                                    className="w-full bg-slate-50 dark:bg-[#1c2724] text-slate-900 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-primary p-4 h-14 font-medium placeholder-slate-400 dark:placeholder-[#5e7c74]"
+                                    id="description"
+                                    placeholder="e.g., Lunch at restaurant"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                />
                             </div>
 
                             {/* Date & Notes */}
@@ -162,37 +351,60 @@ const Transactions = ({ onMenuClick }) => {
                                 <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm">
                                     <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2] mb-3 block">Date</label>
                                     <div className="relative">
-                                        <input className="w-full bg-slate-50 dark:bg-[#1c2724] text-slate-900 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-primary p-4 h-14 font-medium appearance-none" type="date" defaultValue="2023-10-27" />
+                                        <input
+                                            className="w-full bg-slate-50 dark:bg-[#1c2724] text-slate-900 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-primary p-4 h-14 font-medium appearance-none"
+                                            type="date"
+                                            value={transactionDate}
+                                            onChange={(e) => setTransactionDate(e.target.value)}
+                                        />
                                         <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-500 dark:text-[#9db9b2]">
                                             <span className="material-symbols-outlined">calendar_today</span>
                                         </div>
                                     </div>
                                 </div>
-                                {/* Attachments */}
-                                <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm flex flex-col justify-between">
-                                    <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2] mb-3 block">Attachments</label>
-                                    <button className="flex items-center justify-center gap-2 w-full h-14 rounded-xl border-2 border-dashed border-slate-300 dark:border-[#283935] text-slate-400 dark:text-[#5e7c74] hover:border-primary hover:text-primary hover:bg-primary/5 transition-all">
-                                        <span className="material-symbols-outlined">attach_file</span>
-                                        <span className="text-sm font-medium">Add Receipt</span>
-                                    </button>
+
+                                {/* Note */}
+                                <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm">
+                                    <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2] mb-3 block" htmlFor="notes">
+                                        Note <span className="text-xs font-normal opacity-50">(Optional)</span>
+                                    </label>
+                                    <textarea
+                                        className="w-full bg-slate-50 dark:bg-[#1c2724] text-slate-900 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-primary p-4 resize-none placeholder-slate-400 dark:placeholder-[#5e7c74]"
+                                        id="notes"
+                                        placeholder="Any additional notes..."
+                                        rows="2"
+                                        value={note}
+                                        onChange={(e) => setNote(e.target.value)}
+                                    ></textarea>
                                 </div>
-                            </div>
-                            {/* Note Textarea */}
-                            <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm flex-1">
-                                <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2] mb-3 block" htmlFor="notes">Note <span className="text-xs font-normal opacity-50">(Optional)</span></label>
-                                <textarea className="w-full bg-slate-50 dark:bg-[#1c2724] text-slate-900 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-primary p-4 resize-none placeholder-slate-400 dark:placeholder-[#5e7c74]" id="notes" placeholder="What is this for?" rows="3"></textarea>
                             </div>
                         </div>
                     </div>
 
                     {/* Action Footer */}
                     <div className="flex items-center justify-end gap-4 mt-4 pt-6 border-t border-gray-200 dark:border-white/5">
-                        <button className="px-8 py-4 rounded-xl text-slate-600 dark:text-gray-300 font-bold hover:bg-slate-200 dark:hover:bg-[#283935] transition-colors">
+                        <button
+                            onClick={() => navigate('/')}
+                            className="px-8 py-4 rounded-xl text-slate-600 dark:text-gray-300 font-bold hover:bg-slate-200 dark:hover:bg-[#283935] transition-colors"
+                        >
                             Cancel
                         </button>
-                        <button className="px-10 py-4 rounded-xl bg-primary text-[#10221d] font-bold text-lg hover:shadow-[0_0_20px_rgba(19,236,182,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2">
-                            <span className="material-symbols-outlined">check</span>
-                            Add Transaction
+                        <button
+                            onClick={handleSubmit}
+                            disabled={isSubmitting}
+                            className="px-10 py-4 rounded-xl bg-primary text-[#10221d] font-bold text-lg hover:shadow-[0_0_20px_rgba(19,236,182,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined">check</span>
+                                    Add Transaction
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

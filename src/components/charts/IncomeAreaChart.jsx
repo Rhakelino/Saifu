@@ -1,19 +1,15 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const data = [
-    { name: 'Jan', income: 40000000, expense: 24000000 },
-    { name: 'Feb', income: 30000000, expense: 13980000 },
-    { name: 'Mar', income: 20000000, expense: 98000000 },
-    { name: 'Apr', income: 27800000, expense: 39080000 },
-    { name: 'May', income: 18900000, expense: 48000000 },
-    { name: 'Jun', income: 23900000, expense: 38000000 },
-    { name: 'Jul', income: 34900000, expense: 43000000 },
-];
+import { useData } from '../../context/DataContext';
 
 const formatCurrency = (value) => {
     if (value >= 1000000) {
-        return `Rp${(value / 1000000).toFixed(0)}M`;
+        const millions = value / 1000000;
+        // Show decimal only if not a whole number
+        return `Rp${millions % 1 === 0 ? millions.toFixed(0) : millions.toFixed(1)}jt`;
+    }
+    if (value >= 1000) {
+        return `Rp${(value / 1000).toFixed(0)}rb`;
     }
     return `Rp${value}`;
 };
@@ -25,7 +21,7 @@ const CustomTooltip = ({ active, payload, label }) => {
                 <p className="text-[var(--chart-tooltip-text)] font-bold mb-2">{label}</p>
                 {payload.map((entry, index) => (
                     <p key={index} style={{ color: entry.color }} className="text-sm font-medium">
-                        {entry.name === 'income' ? 'Income' : 'Expenses'}: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(entry.value)}
+                        {entry.name === 'income' ? 'Income' : 'Expenses'}: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(entry.value)}
                     </p>
                 ))}
             </div>
@@ -35,11 +31,50 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const IncomeAreaChart = () => {
+    const { stats, loading } = useData();
+
+    // Transform monthlyData from stats to chart format
+    const chartData = React.useMemo(() => {
+        if (!stats?.monthlyData) return [];
+
+        // Convert monthlyData object to array and sort by month
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        return stats.monthlyData.map(item => {
+            // item.month format is 'YYYY-MM', extract the month number
+            const monthPart = item.month?.split('-')[1];
+            const monthIndex = monthPart ? parseInt(monthPart, 10) - 1 : -1;
+
+            return {
+                name: months[monthIndex] || item.month,
+                income: parseFloat(item.income) || 0,
+                expense: parseFloat(item.expenses) || 0,
+            };
+        });
+    }, [stats?.monthlyData]);
+
+    if (loading) {
+        return (
+            <div className="w-full h-full min-h-[300px] flex items-center justify-center">
+                <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-white/20 animate-spin">progress_activity</span>
+            </div>
+        );
+    }
+
+    if (chartData.length === 0) {
+        return (
+            <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center">
+                <span className="material-symbols-outlined text-5xl text-slate-300 dark:text-white/20">insert_chart</span>
+                <p className="text-slate-400 mt-2">No transaction data yet</p>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full h-full min-h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
-                    data={data}
+                    data={chartData}
                     margin={{
                         top: 10,
                         right: 30,
@@ -71,6 +106,8 @@ const IncomeAreaChart = () => {
                         tickLine={false}
                         axisLine={false}
                         tickFormatter={formatCurrency}
+                        domain={[0, 2000000]}
+                        ticks={[0, 500000, 1000000, 1500000, 2000000]}
                     />
                     <Tooltip content={<CustomTooltip />} />
                     <Area

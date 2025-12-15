@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../../components/Header';
-import { useTranslation } from 'react-i18next';
 
 const Appearance = ({ onMenuClick }) => {
-    const { t } = useTranslation();
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
     useEffect(() => {
@@ -19,7 +17,7 @@ const Appearance = ({ onMenuClick }) => {
         <main className="flex-1 overflow-y-auto relative flex flex-col hide-scroll">
             <Header onMenuClick={onMenuClick} />
             <div className="p-8 flex flex-col gap-8 max-w-[800px]">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{t('settings.appearance')}</h1>
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Appearance</h1>
 
                 <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden p-6 shadow-sm dark:shadow-none">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Theme</h2>

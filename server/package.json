@@ -1,0 +1,23 @@
+{
+    "name": "saifu-backend",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "node --watch src/index.js",
+        "start": "node src/index.js",
+        "db:push": "drizzle-kit push",
+        "db:studio": "drizzle-kit studio",
+        "db:seed": "node src/seed.js"
+    },
+    "dependencies": {
+        "@neondatabase/serverless": "^0.10.4",
+        "better-auth": "^1.4.7",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "drizzle-orm": "^0.45.1",
+        "express": "^4.21.2"
+    },
+    "devDependencies": {
+        "drizzle-kit": "^0.31.8"
+    }
+}
