@@ -1,5 +1,5 @@
-// API Base URL
-const API_BASE = 'http://localhost:3001/api';
+// API Base URL - uses relative path for Vercel serverless functions
+const API_BASE = '/api';
 
 // User ID storage - set this when user logs in
 let currentUserId = null;
