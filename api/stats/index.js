@@ -1,5 +1,5 @@
-import { db } from '../../lib/db';
-import { transactions, wallets, categories } from '../../lib/schema';
+import { db } from '../../lib/db.js';
+import { transactions, wallets, categories } from '../../lib/schema.js';
 import { eq, sql, gte, lte, and } from 'drizzle-orm';
 
 export default async function handler(req, res) {
