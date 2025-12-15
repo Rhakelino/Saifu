@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --chart-grid-stroke: #e2e8f0;
+        --chart-axis-stroke: #64748b;
+        --chart-tooltip-bg: #ffffff;
+        --chart-tooltip-border: #e2e8f0;
+        --chart-tooltip-text: #0f172a;
+    }
+
+    .dark {
+        --chart-grid-stroke: rgba(255, 255, 255, 0.1);
+        --chart-axis-stroke: #94a3b8;
+        --chart-tooltip-bg: #18181b;
+        --chart-tooltip-border: rgba(255, 255, 255, 0.1);
+        --chart-tooltip-text: #ffffff;
+    }
+}
+
+@layer utilities {
+    .hide-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scroll {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}

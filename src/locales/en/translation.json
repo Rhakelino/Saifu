@@ -1,0 +1,60 @@
+{
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "transactions": "Transactions",
+        "analytics": "Analytics",
+        "wallets": "Wallets",
+        "settings": "Settings"
+    },
+    "settings": {
+        "title": "Settings",
+        "accountPreferences": "Account Preferences",
+        "appSettings": "App Settings",
+        "profile": "Profile Information",
+        "profileDesc": "Change your account details",
+        "security": "Security",
+        "securityDesc": "Two-factor authentication and password",
+        "notifications": "Notifications",
+        "notificationsDesc": "Manage your alerts",
+        "appearance": "Appearance",
+        "appearanceDesc": "Dark mode is enabled by default",
+        "language": "Language",
+        "currency": "Currency",
+        "currencyDesc": "Indonesian Rupiah (IDR)",
+        "dangerZone": "Danger Zone",
+        "deleteAccount": "Delete Account",
+        "irreversibleAction": "Irreversible actions for your account."
+    },
+    "common": {
+        "viewAll": "View All",
+        "addNew": "Add New"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "greeting": "Monday, Oct 24th",
+        "thisMonth": "This Month",
+        "lastMonth": "Last Month",
+        "ytd": "YTD",
+        "addTransaction": "Add Transaction"
+    },
+    "stats": {
+        "netWorth": "Total Net Worth",
+        "income": "Total Income",
+        "expenses": "Total Expenses",
+        "vsLastMonth": "vs last month"
+    },
+    "wallets": {
+        "title": "My Wallets",
+        "due": "Due"
+    },
+    "transactions": {
+        "title": "Recent Transactions",
+        "printCsv": "Print CSV",
+        "table": {
+            "transaction": "Transaction",
+            "category": "Category",
+            "date": "Date",
+            "amount": "Amount"
+        }
+    }
+}
