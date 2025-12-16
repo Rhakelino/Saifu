@@ -5,6 +5,7 @@ import { signIn } from '../lib/authClient';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -17,6 +18,7 @@ const Login = () => {
             const result = await signIn.email({
                 email,
                 password,
+                rememberMe,
             });
 
             if (result.error) {
@@ -78,6 +80,23 @@ const Login = () => {
                                 required
                                 className="w-full bg-slate-50 dark:bg-surface-dark text-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-white/5 focus:ring-2 focus:ring-primary focus:border-transparent p-4 font-medium placeholder-slate-400 dark:placeholder-slate-500 transition-all"
                             />
+                        </div>
+
+                        {/* Remember Me */}
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                id="rememberMe"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-surface-dark text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 cursor-pointer transition-all"
+                            />
+                            <label
+                                htmlFor="rememberMe"
+                                className="text-sm text-slate-600 dark:text-slate-400 cursor-pointer select-none"
+                            >
+                                Remember me for 30 days
+                            </label>
                         </div>
 
                         <button
