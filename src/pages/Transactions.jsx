@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import toast from 'react-hot-toast';
 
 // Format number to Indonesian Rupiah for display
 const formatCurrency = (amount) => {
@@ -94,9 +95,11 @@ const Transactions = ({ onMenuClick }) => {
                 transactionDate,
             });
 
+            toast.success('Transaction added successfully!');
             // Reset form and navigate back
             navigate('/');
         } catch (err) {
+            toast.error(err.message || 'Failed to add transaction');
             setError(err.message || 'Failed to add transaction');
         } finally {
             setIsSubmitting(false);

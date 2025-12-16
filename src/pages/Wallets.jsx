@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import { useData } from '../context/DataContext';
+import toast from 'react-hot-toast';
 
 // Format number to Indonesian Rupiah
 const formatCurrency = (amount) => {
@@ -44,6 +45,8 @@ const Wallets = ({ onMenuClick }) => {
     const [showModal, setShowModal] = useState(false);
     const [editingWallet, setEditingWallet] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
     const [error, setError] = useState('');
 
     // Form state
@@ -132,17 +135,20 @@ const Wallets = ({ onMenuClick }) => {
             if (editingWallet) {
                 // Update existing wallet
                 await updateWallet(editingWallet.id, walletData);
+                toast.success('Wallet updated successfully!');
             } else {
                 // Create new wallet with balance
                 await addWallet({
                     ...walletData,
                     balance: formData.balance || '0',
                 });
+                toast.success('Wallet created successfully!');
             }
 
             resetForm();
             setShowModal(false);
         } catch (err) {
+            toast.error(err.message || 'Failed to save wallet');
             setError(err.message || 'Failed to save wallet');
         } finally {
             setIsSubmitting(false);
@@ -150,14 +156,15 @@ const Wallets = ({ onMenuClick }) => {
     };
 
     const handleDelete = async (walletId) => {
-        if (!confirm('Are you sure you want to delete this wallet? All transactions will also be deleted.')) {
-            return;
-        }
-
+        setDeletingId(walletId);
         try {
             await deleteWallet(walletId);
+            toast.success('Wallet deleted successfully!');
+            setShowDeleteConfirm(null);
         } catch (err) {
-            alert(err.message || 'Failed to delete wallet');
+            toast.error(err.message || 'Failed to delete wallet');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -209,10 +216,15 @@ const Wallets = ({ onMenuClick }) => {
                                             <span className="material-symbols-outlined text-sm">edit</span>
                                         </button>
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); handleDelete(wallet.id); }}
-                                            className="h-8 w-8 rounded-full bg-white/20 hover:bg-red-500 text-white flex items-center justify-center transition-all"
+                                            onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(wallet.id); }}
+                                            disabled={deletingId === wallet.id}
+                                            className="h-8 w-8 rounded-full bg-white/20 hover:bg-red-500 text-white flex items-center justify-center transition-all disabled:opacity-50"
                                         >
-                                            <span className="material-symbols-outlined text-sm">delete</span>
+                                            {deletingId === wallet.id ? (
+                                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                            ) : (
+                                                <span className="material-symbols-outlined text-sm">delete</span>
+                                            )}
                                         </button>
                                     </div>
 
@@ -396,6 +408,44 @@ const Wallets = ({ onMenuClick }) => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirm Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-white/5 w-full max-w-sm p-6 text-center">
+                        <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                            <span className="material-symbols-outlined text-3xl text-red-500">warning</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete Wallet?</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+                            This will also delete all transactions in this wallet. This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(null)}
+                                disabled={deletingId}
+                                className="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white font-semibold hover:bg-slate-200 dark:hover:bg-white/10 transition-colors disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleDelete(showDeleteConfirm)}
+                                disabled={deletingId}
+                                className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {deletingId ? (
+                                    <>
+                                        <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    'Delete'
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

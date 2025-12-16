@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from '../components/Header';
 import { useData } from '../context/DataContext';
 import { categoriesAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 // Available icons for categories
 const iconOptions = [
@@ -25,6 +26,8 @@ const Categories = ({ onMenuClick }) => {
     const [showModal, setShowModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('expense');
 
@@ -77,13 +80,16 @@ const Categories = ({ onMenuClick }) => {
         try {
             if (editingCategory) {
                 await categoriesAPI.update(editingCategory.id, formData);
+                toast.success('Category updated successfully!');
             } else {
                 await addCategory(formData);
+                toast.success('Category created successfully!');
             }
             await refreshAll();
             setShowModal(false);
             resetForm();
         } catch (err) {
+            toast.error(err.message || 'Failed to save category');
             setError(err.message || 'Failed to save category');
         } finally {
             setIsSubmitting(false);
@@ -91,13 +97,16 @@ const Categories = ({ onMenuClick }) => {
     };
 
     const handleDelete = async (categoryId) => {
-        if (!confirm('Are you sure you want to delete this category?')) return;
-
+        setDeletingId(categoryId);
         try {
             await categoriesAPI.delete(categoryId);
             await refreshAll();
+            toast.success('Category deleted successfully!');
+            setShowDeleteConfirm(null);
         } catch (err) {
-            alert(err.message || 'Failed to delete category');
+            toast.error(err.message || 'Failed to delete category');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -179,10 +188,15 @@ const Categories = ({ onMenuClick }) => {
                                             <span className="material-symbols-outlined text-sm">edit</span>
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(cat.id)}
-                                            className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors"
+                                            onClick={() => setShowDeleteConfirm(cat.id)}
+                                            disabled={deletingId === cat.id}
+                                            className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors disabled:opacity-50"
                                         >
-                                            <span className="material-symbols-outlined text-sm">delete</span>
+                                            {deletingId === cat.id ? (
+                                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                            ) : (
+                                                <span className="material-symbols-outlined text-sm">delete</span>
+                                            )}
                                         </button>
                                     </div>
                                 </div>
@@ -361,6 +375,44 @@ const Categories = ({ onMenuClick }) => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirm Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-white/5 w-full max-w-sm p-6 text-center">
+                        <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                            <span className="material-symbols-outlined text-3xl text-red-500">warning</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete Category?</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+                            Are you sure you want to delete this category? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(null)}
+                                disabled={deletingId}
+                                className="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white font-semibold hover:bg-slate-200 dark:hover:bg-white/10 transition-colors disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleDelete(showDeleteConfirm)}
+                                disabled={deletingId}
+                                className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {deletingId ? (
+                                    <>
+                                        <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    'Delete'
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

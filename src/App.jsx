@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import { DataProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 // Layout component for authenticated pages (with sidebar)
 function AuthenticatedLayout({ children, sidebarOpen, setSidebarOpen }) {
@@ -82,6 +83,34 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#182a25',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            fontSize: '14px',
+            fontWeight: '500',
+            backdropFilter: 'blur(10px)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#13ecb6',
+              secondary: '#10221d',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <AppRoutes />
     </AuthProvider>
   );

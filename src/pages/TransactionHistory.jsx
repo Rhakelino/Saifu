@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { useData } from '../context/DataContext';
 import { transactionsAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 // Format number to Indonesian Rupiah
 const formatCurrency = (amount, type) => {
@@ -34,9 +35,10 @@ const EditTransactionModal = ({ transaction, categories, onClose, onSave }) => {
         setSaving(true);
         try {
             await onSave(transaction.id, formData);
+            toast.success('Transaction updated successfully!');
             onClose();
         } catch (err) {
-            alert(err.message || 'Failed to update transaction');
+            toast.error(err.message || 'Failed to update transaction');
         } finally {
             setSaving(false);
         }
@@ -158,6 +160,8 @@ const TransactionHistory = ({ onMenuClick }) => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
     const [filter, setFilter] = useState({
         type: 'all',
         walletId: 'all',
@@ -192,12 +196,16 @@ const TransactionHistory = ({ onMenuClick }) => {
 
     // Handle delete
     const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this transaction?')) return;
+        setDeletingId(id);
         try {
             await deleteTransaction(id);
             setTransactions(prev => prev.filter(t => t.id !== id));
+            toast.success('Transaction deleted successfully!');
+            setShowDeleteConfirm(null);
         } catch (err) {
-            alert(err.message || 'Failed to delete transaction');
+            toast.error(err.message || 'Failed to delete transaction');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -453,10 +461,15 @@ const TransactionHistory = ({ onMenuClick }) => {
                                                         <span className="material-symbols-outlined text-sm">edit</span>
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDelete(tx.id)}
-                                                        className="opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white flex items-center justify-center transition-all"
+                                                        onClick={() => setShowDeleteConfirm(tx.id)}
+                                                        disabled={deletingId === tx.id}
+                                                        className="opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white flex items-center justify-center transition-all disabled:opacity-50"
                                                     >
-                                                        <span className="material-symbols-outlined text-sm">delete</span>
+                                                        {deletingId === tx.id ? (
+                                                            <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                                        ) : (
+                                                            <span className="material-symbols-outlined text-sm">delete</span>
+                                                        )}
                                                     </button>
                                                 </div>
                                             </td>
@@ -477,6 +490,44 @@ const TransactionHistory = ({ onMenuClick }) => {
                     onClose={() => setEditingTransaction(null)}
                     onSave={handleEditSave}
                 />
+            )}
+
+            {/* Delete Confirm Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-white/5 w-full max-w-sm p-6 text-center">
+                        <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                            <span className="material-symbols-outlined text-3xl text-red-500">warning</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete Transaction?</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+                            Are you sure you want to delete this transaction? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(null)}
+                                disabled={deletingId}
+                                className="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white font-semibold hover:bg-slate-200 dark:hover:bg-white/10 transition-colors disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleDelete(showDeleteConfirm)}
+                                disabled={deletingId}
+                                className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {deletingId ? (
+                                    <>
+                                        <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    'Delete'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </main>
     );
