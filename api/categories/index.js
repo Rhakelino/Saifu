@@ -1,6 +1,6 @@
 import { db } from '../../lib/db.js';
 import { categories } from '../../lib/schema.js';
-import { eq } from 'drizzle-orm';
+import { eq, or, isNull, and } from 'drizzle-orm';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -20,11 +20,25 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: 'userId is required' });
             }
 
+            // Get user's custom categories + default categories (where userId is null)
             let result;
             if (type) {
-                result = await db.select().from(categories).where(eq(categories.userId, userId)).where(eq(categories.type, type));
+                result = await db
+                    .select()
+                    .from(categories)
+                    .where(
+                        and(
+                            or(eq(categories.userId, userId), isNull(categories.userId)),
+                            eq(categories.type, type)
+                        )
+                    );
             } else {
-                result = await db.select().from(categories).where(eq(categories.userId, userId));
+                result = await db
+                    .select()
+                    .from(categories)
+                    .where(
+                        or(eq(categories.userId, userId), isNull(categories.userId))
+                    );
             }
 
             return res.json(result);
