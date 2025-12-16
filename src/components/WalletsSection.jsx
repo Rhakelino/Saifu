@@ -1,5 +1,7 @@
 import React, { useRef } from 'react';
 import { useData } from '../context/DataContext';
+import { ArrowLeft, ArrowRight, Plus } from 'lucide-react';
+import { getIcon } from '../lib/iconMap';
 
 // Format number to Indonesian Rupiah
 const formatCurrency = (amount) => {
@@ -58,13 +60,13 @@ const WalletsSection = () => {
                         onClick={() => scroll(-300)}
                         className="h-8 w-8 rounded-full bg-white dark:bg-card-dark border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 active:scale-95 transition-all"
                     >
-                        <span className="material-symbols-outlined text-sm">arrow_back</span>
+                        <ArrowLeft className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => scroll(300)}
                         className="h-8 w-8 rounded-full bg-white dark:bg-card-dark border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 active:scale-95 transition-all"
                     >
-                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        <ArrowRight className="w-4 h-4" />
                     </button>
                 </div>
             </div>
@@ -75,6 +77,7 @@ const WalletsSection = () => {
                 {wallets.map((wallet) => {
                     const style = walletStyles[wallet.type] || walletStyles.other;
                     const isCredit = wallet.type === 'credit_card';
+                    const Icon = getIcon(wallet.icon || style.icon);
 
                     return (
                         <div
@@ -82,12 +85,12 @@ const WalletsSection = () => {
                             className={`min-w-[300px] snap-center bg-gradient-to-br ${style.gradient} p-6 rounded-2xl border border-white/5 relative overflow-hidden group hover:border-primary/50 transition-all cursor-pointer`}
                         >
                             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-6xl text-white">{wallet.icon || style.icon}</span>
+                                <Icon className="w-16 h-16 text-white" />
                             </div>
                             <div className="relative z-10 flex flex-col h-full justify-between">
                                 <div className="flex justify-between items-start mb-8">
                                     <div className="bg-white/10 p-2 rounded-lg backdrop-blur-md">
-                                        <span className="material-symbols-outlined text-white">{wallet.icon || style.icon}</span>
+                                        <Icon className="w-6 h-6 text-white" />
                                     </div>
                                     {wallet.accountNumber && (
                                         <p className="text-slate-400 text-sm font-medium tracking-wider">**** {wallet.accountNumber.slice(-4)}</p>
@@ -111,7 +114,7 @@ const WalletsSection = () => {
                 {/* Add Wallet */}
                 <div className="min-w-[100px] snap-center bg-transparent border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center h-[180px] cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group">
                     <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-colors">
-                        <span className="material-symbols-outlined text-slate-400 group-hover:text-black">add</span>
+                        <Plus className="w-6 h-6 text-slate-400 group-hover:text-black" />
                     </div>
                     <p className="text-slate-500 text-sm mt-3 font-medium group-hover:text-primary">Add New</p>
                 </div>

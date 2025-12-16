@@ -1,5 +1,6 @@
 import React from 'react';
 import { useData } from '../context/DataContext';
+import { Landmark, ArrowDown, ArrowUp, TrendingUp, TrendingDown } from 'lucide-react';
 
 // Format number to Indonesian Rupiah
 const formatCurrency = (amount) => {
@@ -72,7 +73,7 @@ const StatsGrid = () => {
             {/* Net Worth Card */}
             <div className="flex flex-col gap-4 rounded-xl p-6 bg-white dark:bg-card-dark border border-slate-200 dark:border-white/5 shadow-lg relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <span className="material-symbols-outlined text-6xl text-slate-900 dark:text-white">account_balance</span>
+                    <Landmark className="w-16 h-16 text-slate-900 dark:text-white" />
                 </div>
                 <div className="flex items-start justify-between z-10">
                     <p className="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Total Net Worth</p>
@@ -95,7 +96,7 @@ const StatsGrid = () => {
             <div className="bg-white dark:bg-gradient-to-br dark:from-card-dark dark:to-surface-dark p-6 rounded-2xl border border-slate-200 dark:border-white/5 flex flex-col justify-between hover:border-primary/30 transition-colors group">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
-                        <span className="material-symbols-outlined text-primary">arrow_downward</span>
+                        <ArrowDown className="w-6 h-6 text-primary" />
                     </div>
                     <span className="text-slate-500 dark:text-slate-400 font-medium">Total Income</span>
                 </div>
@@ -103,9 +104,7 @@ const StatsGrid = () => {
                 {changes.income && (
                     <div className={`mt-4 flex items-center gap-2 text-sm font-medium ${changes.income.isPositive ? 'text-primary bg-primary/10' : 'text-red-400 bg-red-500/10'
                         } w-fit px-2 py-1 rounded-md`}>
-                        <span className="material-symbols-outlined text-base">
-                            {changes.income.isPositive ? 'trending_up' : 'trending_down'}
-                        </span>
+                        {changes.income.isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                         <span>{changes.income.isPositive ? '+' : '-'}{changes.income.value}% vs last month</span>
                     </div>
                 )}
@@ -115,7 +114,7 @@ const StatsGrid = () => {
             <div className="bg-white dark:bg-gradient-to-br dark:from-card-dark dark:to-surface-dark p-6 rounded-2xl border border-slate-200 dark:border-white/5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-white/20 transition-colors group">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="bg-red-500/10 p-2 rounded-lg group-hover:bg-red-500/20 transition-colors">
-                        <span className="material-symbols-outlined text-red-500">arrow_upward</span>
+                        <ArrowUp className="w-6 h-6 text-red-500" />
                     </div>
                     <span className="text-slate-500 dark:text-slate-400 font-medium">Total Expenses</span>
                 </div>
@@ -123,8 +122,8 @@ const StatsGrid = () => {
                 {changes.expense && (
                     <p className={`text-sm font-medium flex items-center mt-4 ${changes.expense.isPositive ? 'text-primary' : 'text-red-400'
                         }`}>
-                        <span className="material-symbols-outlined text-sm mr-1">
-                            {changes.expense.isPositive ? 'trending_down' : 'trending_up'}
+                        <span className="mr-1">
+                            {changes.expense.isPositive ? <TrendingDown className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
                         </span>
                         {changes.expense.isPositive ? '-' : '+'}{changes.expense.value}% vs last month
                     </p>

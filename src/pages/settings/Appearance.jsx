@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../../components/Header';
+import { Sun, Moon } from 'lucide-react';
 
 const Appearance = ({ onMenuClick }) => {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
@@ -26,14 +27,14 @@ const Appearance = ({ onMenuClick }) => {
                             onClick={() => setTheme('light')}
                             className={`flex-1 p-4 rounded-xl border ${theme === 'light' ? 'border-primary bg-primary/10' : 'border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5'} transition-all flex flex-col items-center gap-2`}
                         >
-                            <span className="material-symbols-outlined text-3xl text-slate-900 dark:text-white">light_mode</span>
+                            <Sun className="w-8 h-8 text-slate-900 dark:text-white" />
                             <span className="text-slate-900 dark:text-white font-medium">Light Mode</span>
                         </button>
                         <button
                             onClick={() => setTheme('dark')}
                             className={`flex-1 p-4 rounded-xl border ${theme === 'dark' ? 'border-primary bg-primary/10' : 'border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5'} transition-all flex flex-col items-center gap-2`}
                         >
-                            <span className="material-symbols-outlined text-3xl text-slate-900 dark:text-white">dark_mode</span>
+                            <Moon className="w-8 h-8 text-slate-900 dark:text-white" />
                             <span className="text-slate-900 dark:text-white font-medium">Dark Mode</span>
                         </button>
                     </div>

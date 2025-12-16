@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Menu, Plus, ChevronDown, LogOut } from 'lucide-react';
 
 const Header = ({ onMenuClick }) => {
     const { user, logout } = useAuth();
@@ -16,7 +17,7 @@ const Header = ({ onMenuClick }) => {
                     onClick={onMenuClick}
                     className="md:hidden text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
-                    <span className="material-symbols-outlined text-2xl">menu</span>
+                    <Menu className="w-6 h-6" />
                 </button>
                 <div>
                     <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
@@ -35,7 +36,7 @@ const Header = ({ onMenuClick }) => {
                     to="/transactions"
                     className="flex items-center justify-center gap-2 rounded-lg h-10 px-5 bg-primary hover:bg-primary/90 text-background-dark text-sm font-bold shadow-[0_0_15px_rgba(19,236,182,0.3)] transition-all"
                 >
-                    <span className="material-symbols-outlined text-[20px]">add</span>
+                    <Plus className="w-5 h-5" />
                     <span className="hidden sm:inline">Add Transaction</span>
                 </Link>
 
@@ -50,7 +51,7 @@ const Header = ({ onMenuClick }) => {
                         <span className="hidden md:block text-sm font-medium text-slate-700 dark:text-slate-300 max-w-[100px] truncate">
                             {user?.name?.split(' ')[0] || 'User'}
                         </span>
-                        <span className="material-symbols-outlined text-slate-400 text-sm">expand_more</span>
+                        <ChevronDown className="w-4 h-4 text-slate-400" />
                     </button>
 
                     {/* Dropdown */}
@@ -64,7 +65,7 @@ const Header = ({ onMenuClick }) => {
                                 onClick={logout}
                                 className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                             >
-                                <span className="material-symbols-outlined text-lg">logout</span>
+                                <LogOut className="w-5 h-5" />
                                 Logout
                             </button>
                         </div>

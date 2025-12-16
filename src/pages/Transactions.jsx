@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import toast from 'react-hot-toast';
+import { ArrowUpRight, ArrowDown, ArrowRightLeft, Menu, X, Calendar, Check, Loader2 } from 'lucide-react';
+import { getIcon } from '../lib/iconMap';
 
 // Format number to Indonesian Rupiah for display
 const formatCurrency = (amount) => {
@@ -128,7 +130,7 @@ const Transactions = ({ onMenuClick }) => {
                         onClick={onMenuClick}
                         className="md:hidden text-slate-400 hover:text-white transition-colors"
                     >
-                        <span className="material-symbols-outlined text-2xl">menu</span>
+                        <Menu className="w-6 h-6" />
                     </button>
                     <div>
                         <h2 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white">Add Transaction</h2>
@@ -140,7 +142,7 @@ const Transactions = ({ onMenuClick }) => {
                     aria-label="Close"
                     className="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-[#283935] hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all duration-200"
                 >
-                    <span className="material-symbols-outlined">close</span>
+                    <X className="w-5 h-5" />
                 </button>
             </header>
 
@@ -167,7 +169,7 @@ const Transactions = ({ onMenuClick }) => {
                                     onChange={() => setTransactionType('expense')}
                                 />
                                 <div className="px-6 md:px-8 py-2.5 rounded-xl text-sm font-semibold text-slate-500 dark:text-[#9db9b2] peer-checked:bg-slate-900 peer-checked:text-white dark:peer-checked:bg-primary dark:peer-checked:text-[#10221d] transition-all flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">arrow_outward</span>
+                                    <ArrowUpRight className="w-[18px] h-[18px]" />
                                     Expense
                                 </div>
                             </label>
@@ -181,7 +183,7 @@ const Transactions = ({ onMenuClick }) => {
                                     onChange={() => setTransactionType('income')}
                                 />
                                 <div className="px-6 md:px-8 py-2.5 rounded-xl text-sm font-semibold text-slate-500 dark:text-[#9db9b2] peer-checked:bg-slate-900 peer-checked:text-white dark:peer-checked:bg-primary dark:peer-checked:text-[#10221d] transition-all flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
+                                    <ArrowDown className="w-[18px] h-[18px]" />
                                     Income
                                 </div>
                             </label>
@@ -195,7 +197,7 @@ const Transactions = ({ onMenuClick }) => {
                                     onChange={() => setTransactionType('transfer')}
                                 />
                                 <div className="px-6 md:px-8 py-2.5 rounded-xl text-sm font-semibold text-slate-500 dark:text-[#9db9b2] peer-checked:bg-slate-900 peer-checked:text-white dark:peer-checked:bg-primary dark:peer-checked:text-[#10221d] transition-all flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">sync_alt</span>
+                                    <ArrowRightLeft className="w-[18px] h-[18px]" />
                                     Transfer
                                 </div>
                             </label>
@@ -241,30 +243,33 @@ const Transactions = ({ onMenuClick }) => {
                                     ) : wallets.length === 0 ? (
                                         <p className="text-slate-400 text-sm text-center py-4">No wallets found. Create one first.</p>
                                     ) : (
-                                        wallets.map(wallet => (
-                                            <label
-                                                key={wallet.id}
-                                                className={`flex items-center gap-4 p-3 rounded-2xl border cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1c2724] transition-all ${selectedWallet === wallet.id
-                                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                                                    : 'border-slate-200 dark:border-[#283935]'
-                                                    }`}
-                                            >
-                                                <div className="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
-                                                    <span className="material-symbols-outlined">{wallet.icon || 'account_balance'}</span>
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="font-bold text-slate-900 dark:text-white">{wallet.name}</p>
-                                                    <p className="text-xs text-slate-500 dark:text-[#9db9b2]">{formatCurrency(parseFloat(wallet.balance))}</p>
-                                                </div>
-                                                <input
-                                                    className="text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-transparent size-5"
-                                                    name="wallet"
-                                                    type="radio"
-                                                    checked={selectedWallet === wallet.id}
-                                                    onChange={() => setSelectedWallet(wallet.id)}
-                                                />
-                                            </label>
-                                        ))
+                                        wallets.map(wallet => {
+                                            const Icon = getIcon(wallet.icon || 'account_balance');
+                                            return (
+                                                <label
+                                                    key={wallet.id}
+                                                    className={`flex items-center gap-4 p-3 rounded-2xl border cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1c2724] transition-all ${selectedWallet === wallet.id
+                                                        ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                                                        : 'border-slate-200 dark:border-[#283935]'
+                                                        }`}
+                                                >
+                                                    <div className="size-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg">
+                                                        <Icon className="w-5 h-5" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-bold text-slate-900 dark:text-white">{wallet.name}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-[#9db9b2]">{formatCurrency(parseFloat(wallet.balance))}</p>
+                                                    </div>
+                                                    <input
+                                                        className="text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-transparent size-5"
+                                                        name="wallet"
+                                                        type="radio"
+                                                        checked={selectedWallet === wallet.id}
+                                                        onChange={() => setSelectedWallet(wallet.id)}
+                                                    />
+                                                </label>
+                                            )
+                                        })
                                     )}
                                 </div>
                             </div>
@@ -274,30 +279,33 @@ const Transactions = ({ onMenuClick }) => {
                                 <div className="bg-white dark:bg-[#182a25] p-6 rounded-3xl border border-gray-200 dark:border-white/5 shadow-sm">
                                     <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2] mb-4 block">To Wallet</label>
                                     <div className="space-y-3">
-                                        {wallets.filter(w => w.id !== selectedWallet).map(wallet => (
-                                            <label
-                                                key={wallet.id}
-                                                className={`flex items-center gap-4 p-3 rounded-2xl border cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1c2724] transition-all ${selectedToWallet === wallet.id
-                                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                                                    : 'border-slate-200 dark:border-[#283935]'
-                                                    }`}
-                                            >
-                                                <div className="size-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg">
-                                                    <span className="material-symbols-outlined">{wallet.icon || 'account_balance'}</span>
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="font-bold text-slate-900 dark:text-white">{wallet.name}</p>
-                                                    <p className="text-xs text-slate-500 dark:text-[#9db9b2]">{formatCurrency(parseFloat(wallet.balance))}</p>
-                                                </div>
-                                                <input
-                                                    className="text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-transparent size-5"
-                                                    name="to_wallet"
-                                                    type="radio"
-                                                    checked={selectedToWallet === wallet.id}
-                                                    onChange={() => setSelectedToWallet(wallet.id)}
-                                                />
-                                            </label>
-                                        ))}
+                                        {wallets.filter(w => w.id !== selectedWallet).map(wallet => {
+                                            const Icon = getIcon(wallet.icon || 'account_balance');
+                                            return (
+                                                <label
+                                                    key={wallet.id}
+                                                    className={`flex items-center gap-4 p-3 rounded-2xl border cursor-pointer hover:bg-slate-50 dark:hover:bg-[#1c2724] transition-all ${selectedToWallet === wallet.id
+                                                        ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                                                        : 'border-slate-200 dark:border-[#283935]'
+                                                        }`}
+                                                >
+                                                    <div className="size-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg">
+                                                        <Icon className="w-5 h-5" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-bold text-slate-900 dark:text-white">{wallet.name}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-[#9db9b2]">{formatCurrency(parseFloat(wallet.balance))}</p>
+                                                    </div>
+                                                    <input
+                                                        className="text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-transparent size-5"
+                                                        name="to_wallet"
+                                                        type="radio"
+                                                        checked={selectedToWallet === wallet.id}
+                                                        onChange={() => setSelectedToWallet(wallet.id)}
+                                                    />
+                                                </label>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -312,24 +320,27 @@ const Transactions = ({ onMenuClick }) => {
                                         <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2]">Category</label>
                                     </div>
                                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                                        {filteredCategories.map((cat) => (
-                                            <button
-                                                key={cat.id}
-                                                type="button"
-                                                onClick={() => setSelectedCategory(cat.id)}
-                                                className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border focus:outline-none active:scale-95 transition-all group ${selectedCategory === cat.id
-                                                    ? 'ring-2 ring-primary bg-primary/10 dark:bg-primary/10 border-transparent'
-                                                    : 'bg-slate-100 dark:bg-[#1c2724] hover:bg-slate-200 dark:hover:bg-[#283935] border-transparent'
-                                                    }`}
-                                            >
-                                                <div style={{ color: selectedCategory === cat.id ? '#13ecb6' : (cat.color || '#9db9b2') }}>
-                                                    <span className="material-symbols-outlined text-[28px]">{cat.icon || 'category'}</span>
-                                                </div>
-                                                <span className={`text-xs font-medium ${selectedCategory === cat.id ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-[#9db9b2]'}`}>
-                                                    {cat.name}
-                                                </span>
-                                            </button>
-                                        ))}
+                                        {filteredCategories.map((cat) => {
+                                            const Icon = getIcon(cat.icon || 'category');
+                                            return (
+                                                <button
+                                                    key={cat.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedCategory(cat.id)}
+                                                    className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border focus:outline-none active:scale-95 transition-all group ${selectedCategory === cat.id
+                                                        ? 'ring-2 ring-primary bg-primary/10 dark:bg-primary/10 border-transparent'
+                                                        : 'bg-slate-100 dark:bg-[#1c2724] hover:bg-slate-200 dark:hover:bg-[#283935] border-transparent'
+                                                        }`}
+                                                >
+                                                    <div style={{ color: selectedCategory === cat.id ? '#13ecb6' : (cat.color || '#9db9b2') }}>
+                                                        <Icon className="w-7 h-7" />
+                                                    </div>
+                                                    <span className={`text-xs font-medium ${selectedCategory === cat.id ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-[#9db9b2]'}`}>
+                                                        {cat.name}
+                                                    </span>
+                                                </button>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -361,7 +372,7 @@ const Transactions = ({ onMenuClick }) => {
                                             onChange={(e) => setTransactionDate(e.target.value)}
                                         />
                                         <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-500 dark:text-[#9db9b2]">
-                                            <span className="material-symbols-outlined">calendar_today</span>
+                                            <Calendar className="w-5 h-5" />
                                         </div>
                                     </div>
                                 </div>
@@ -399,12 +410,12 @@ const Transactions = ({ onMenuClick }) => {
                         >
                             {isSubmitting ? (
                                 <>
-                                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
                                     Saving...
                                 </>
                             ) : (
                                 <>
-                                    <span className="material-symbols-outlined">check</span>
+                                    <Check className="w-5 h-5" />
                                     Add Transaction
                                 </>
                             )}

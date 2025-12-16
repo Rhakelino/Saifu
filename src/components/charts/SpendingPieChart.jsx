@@ -1,5 +1,7 @@
-import React from 'react';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+import React, { useEffect, useState } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { Loader2, PieChart as PieChartIcon } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 
 // Default colors for categories
@@ -40,16 +42,21 @@ const SpendingPieChart = () => {
     if (loading) {
         return (
             <div className="w-full h-full min-h-[300px] flex items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-white/20 animate-spin">progress_activity</span>
+                <div className="flex flex-col items-center justify-center h-full text-slate-500">
+                    <Loader2 className="w-10 h-10 animate-spin mb-2 text-slate-300 dark:text-white/20" />
+                    <p>Loading chart data...</p>
+                </div>
             </div>
         );
     }
 
     if (chartData.length === 0) {
         return (
-            <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center">
-                <span className="material-symbols-outlined text-5xl text-slate-300 dark:text-white/20">pie_chart</span>
-                <p className="text-slate-400 mt-2">No expense data yet</p>
+            <div className="w-full h-full min-h-[300px] flex items-center justify-center">
+                <div className="flex flex-col items-center justify-center h-full text-slate-500">
+                    <PieChartIcon className="w-12 h-12 mb-2 text-slate-300 dark:text-white/20" />
+                    <p>No expense data available</p>
+                </div>
             </div>
         );
     }
@@ -70,7 +77,7 @@ const SpendingPieChart = () => {
                     >
                         {chartData.map((entry, index) => (
                             <Cell
-                                key={`cell-${index}`}
+                                key={`cell - ${index} `}
                                 fill={entry.color || COLORS[index % COLORS.length]}
                                 stroke="rgba(0,0,0,0)"
                             />

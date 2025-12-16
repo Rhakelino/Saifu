@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { transactionsAPI } from '../services/api';
+import { Download, Receipt } from 'lucide-react';
+import { getIcon } from '../lib/iconMap';
 
 // Format number to Indonesian Rupiah
 const formatCurrency = (amount, type) => {
@@ -55,7 +57,7 @@ const TransactionsSection = () => {
                     <h3 className="text-slate-900 dark:text-white text-lg font-bold">Recent Transactions</h3>
                 </div>
                 <div className="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-none p-8 text-center">
-                    <span className="material-symbols-outlined text-6xl text-slate-300 dark:text-white/20 mb-4">receipt_long</span>
+                    <Receipt className="w-16 h-16 text-slate-300 dark:text-white/20 mb-4 mx-auto" />
                     <p className="text-slate-500 dark:text-slate-400">No transactions yet</p>
                     <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Add your first transaction to get started</p>
                 </div>
@@ -101,7 +103,7 @@ const TransactionsSection = () => {
                         }}
                         className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-sm font-medium flex items-center gap-1 transition-colors"
                     >
-                        <span className="material-symbols-outlined text-sm">download</span>
+                        <Download className="w-4 h-4" />
                         Export CSV
                     </button>
                     <Link to="/history" className="text-primary text-sm font-medium hover:underline">View All</Link>
@@ -126,12 +128,10 @@ const TransactionsSection = () => {
                                             className="h-10 w-10 rounded-full flex items-center justify-center"
                                             style={{ backgroundColor: tx.categoryColor ? `${tx.categoryColor}20` : '#6b728020' }}
                                         >
-                                            <span
-                                                className="material-symbols-outlined text-lg"
-                                                style={{ color: tx.categoryColor || '#6b7280' }}
-                                            >
-                                                {tx.categoryIcon || 'receipt'}
-                                            </span>
+                                            {(() => {
+                                                const Icon = getIcon(tx.categoryIcon || 'receipt');
+                                                return <Icon className="w-5 h-5" style={{ color: tx.categoryColor || '#6b7280' }} />;
+                                            })()}
                                         </div>
                                         <div>
                                             <p className="text-slate-900 dark:text-white font-medium text-sm">{tx.description || tx.categoryName || 'Transaction'}</p>

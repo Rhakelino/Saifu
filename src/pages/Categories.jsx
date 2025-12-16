@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { getIcon, iconMap } from '../lib/iconMap';
+import { Plus, ArrowUp, ArrowDown, Edit, Trash2, Loader2, AlertTriangle, X } from 'lucide-react';
 import Header from '../components/Header';
 import { useData } from '../context/DataContext';
 import { categoriesAPI } from '../services/api';
@@ -129,7 +131,7 @@ const Categories = ({ onMenuClick }) => {
                         onClick={openAddModal}
                         className="px-4 py-2 rounded-xl bg-primary text-[#10221d] font-bold hover:shadow-[0_0_20px_rgba(19,236,182,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
                     >
-                        <span className="material-symbols-outlined">add</span>
+                        <Plus className="w-5 h-5" />
                         Add Category
                     </button>
                 </div>
@@ -138,22 +140,22 @@ const Categories = ({ onMenuClick }) => {
                 <div className="bg-white dark:bg-card-dark rounded-xl p-1.5 inline-flex border border-slate-200 dark:border-white/5 w-fit">
                     <button
                         onClick={() => setActiveTab('expense')}
-                        className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'expense'
+                        className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center ${activeTab === 'expense'
                             ? 'bg-red-500 text-white'
                             : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
-                        <span className="material-symbols-outlined text-sm mr-2 align-middle">arrow_upward</span>
+                        <ArrowUp className="w-4 h-4 mr-2" />
                         Expenses
                     </button>
                     <button
                         onClick={() => setActiveTab('income')}
-                        className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'income'
+                        className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center ${activeTab === 'income'
                             ? 'bg-primary text-[#10221d]'
                             : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
-                        <span className="material-symbols-outlined text-sm mr-2 align-middle">arrow_downward</span>
+                        <ArrowDown className="w-4 h-4 mr-2" />
                         Income
                     </button>
                 </div>
@@ -163,44 +165,45 @@ const Categories = ({ onMenuClick }) => {
                     <div>
                         <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Your Categories</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {userCategories.map(cat => (
-                                <div
-                                    key={cat.id}
-                                    className="bg-white dark:bg-card-dark p-4 rounded-xl border border-slate-200 dark:border-white/5 flex items-center gap-3 group hover:border-primary/50 transition-all relative"
-                                >
+                            {userCategories.map(cat => {
+                                const Icon = getIcon(cat.icon);
+                                return (
                                     <div
-                                        className="h-12 w-12 rounded-xl flex items-center justify-center"
-                                        style={{ backgroundColor: `${cat.color}20` }}
+                                        key={cat.id}
+                                        className="bg-white dark:bg-card-dark p-4 rounded-xl border border-slate-200 dark:border-white/5 flex items-center gap-3 group hover:border-primary/50 transition-all relative"
                                     >
-                                        <span className="material-symbols-outlined text-2xl" style={{ color: cat.color }}>
-                                            {cat.icon || 'category'}
-                                        </span>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-slate-900 dark:text-white font-medium truncate">{cat.name}</p>
-                                        <p className="text-slate-400 text-xs">Custom</p>
-                                    </div>
-                                    <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
-                                        <button
-                                            onClick={() => openEditModal(cat)}
-                                            className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-primary hover:text-black flex items-center justify-center transition-colors"
+                                        <div
+                                            className="h-12 w-12 rounded-xl flex items-center justify-center"
+                                            style={{ backgroundColor: `${cat.color}20` }}
                                         >
-                                            <span className="material-symbols-outlined text-sm">edit</span>
-                                        </button>
-                                        <button
-                                            onClick={() => setShowDeleteConfirm(cat.id)}
-                                            disabled={deletingId === cat.id}
-                                            className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors disabled:opacity-50"
-                                        >
-                                            {deletingId === cat.id ? (
-                                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-                                            ) : (
-                                                <span className="material-symbols-outlined text-sm">delete</span>
-                                            )}
-                                        </button>
+                                            <Icon className="w-6 h-6" style={{ color: cat.color }} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-slate-900 dark:text-white font-medium truncate">{cat.name}</p>
+                                            <p className="text-slate-400 text-xs">Custom</p>
+                                        </div>
+                                        <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
+                                            <button
+                                                onClick={() => openEditModal(cat)}
+                                                className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-primary hover:text-black flex items-center justify-center transition-colors"
+                                            >
+                                                <Edit className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => setShowDeleteConfirm(cat.id)}
+                                                disabled={deletingId === cat.id}
+                                                className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors disabled:opacity-50"
+                                            >
+                                                {deletingId === cat.id ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <Trash2 className="w-4 h-4" />
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     </div>
                 )}
@@ -212,25 +215,26 @@ const Categories = ({ onMenuClick }) => {
                         <span className="text-sm font-normal text-slate-400 ml-2">(Read-only)</span>
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {defaultCategories.map(cat => (
-                            <div
-                                key={cat.id}
-                                className="bg-white dark:bg-card-dark p-4 rounded-xl border border-slate-200 dark:border-white/5 flex items-center gap-3 opacity-80"
-                            >
+                        {defaultCategories.map(cat => {
+                            const Icon = getIcon(cat.icon);
+                            return (
                                 <div
-                                    className="h-12 w-12 rounded-xl flex items-center justify-center"
-                                    style={{ backgroundColor: `${cat.color}20` }}
+                                    key={cat.id}
+                                    className="bg-white dark:bg-card-dark p-4 rounded-xl border border-slate-200 dark:border-white/5 flex items-center gap-3 opacity-80"
                                 >
-                                    <span className="material-symbols-outlined text-2xl" style={{ color: cat.color }}>
-                                        {cat.icon || 'category'}
-                                    </span>
+                                    <div
+                                        className="h-12 w-12 rounded-xl flex items-center justify-center"
+                                        style={{ backgroundColor: `${cat.color}20` }}
+                                    >
+                                        <Icon className="w-6 h-6" style={{ color: cat.color }} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-slate-900 dark:text-white font-medium truncate">{cat.name}</p>
+                                        <p className="text-slate-400 text-xs">Default</p>
+                                    </div>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-slate-900 dark:text-white font-medium truncate">{cat.name}</p>
-                                    <p className="text-slate-400 text-xs">Default</p>
-                                </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
             </div>
@@ -247,7 +251,7 @@ const Categories = ({ onMenuClick }) => {
                                 onClick={() => { setShowModal(false); resetForm(); }}
                                 className="h-10 w-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
                             >
-                                <span className="material-symbols-outlined">close</span>
+                                <X className="w-6 h-6" />
                             </button>
                         </div>
 
@@ -301,19 +305,22 @@ const Categories = ({ onMenuClick }) => {
                             <div>
                                 <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2 block">Icon</label>
                                 <div className="grid grid-cols-6 gap-2 max-h-32 overflow-y-auto bg-slate-50 dark:bg-surface-dark p-3 rounded-xl">
-                                    {iconOptions.map(icon => (
-                                        <button
-                                            key={icon}
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, icon }))}
-                                            className={`h-10 w-10 rounded-lg flex items-center justify-center transition-all ${formData.icon === icon
-                                                ? 'bg-primary text-black ring-2 ring-primary'
-                                                : 'bg-white dark:bg-card-dark hover:bg-slate-200 dark:hover:bg-white/10'
-                                                }`}
-                                        >
-                                            <span className="material-symbols-outlined text-lg">{icon}</span>
-                                        </button>
-                                    ))}
+                                    {iconOptions.map(icon => {
+                                        const Icon = getIcon(icon);
+                                        return (
+                                            <button
+                                                key={icon}
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, icon }))}
+                                                className={`h-10 w-10 rounded-lg flex items-center justify-center transition-all ${formData.icon === icon
+                                                    ? 'bg-primary text-black ring-2 ring-primary'
+                                                    : 'bg-white dark:bg-card-dark hover:bg-slate-200 dark:hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                <Icon className="w-5 h-5" />
+                                            </button>
+                                        )
+                                    })}
                                 </div>
                             </div>
 
@@ -342,9 +349,10 @@ const Categories = ({ onMenuClick }) => {
                                         className="h-12 w-12 rounded-xl flex items-center justify-center"
                                         style={{ backgroundColor: `${formData.color}20` }}
                                     >
-                                        <span className="material-symbols-outlined text-2xl" style={{ color: formData.color }}>
-                                            {formData.icon}
-                                        </span>
+                                        {(() => {
+                                            const Icon = getIcon(formData.icon);
+                                            return <Icon className="w-6 h-6" style={{ color: formData.color }} />
+                                        })()}
                                     </div>
                                     <p className="text-slate-900 dark:text-white font-medium">{formData.name || 'Category Name'}</p>
                                 </div>
@@ -366,7 +374,7 @@ const Categories = ({ onMenuClick }) => {
                                 >
                                     {isSubmitting ? (
                                         <>
-                                            <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
                                             Saving...
                                         </>
                                     ) : (
@@ -384,7 +392,7 @@ const Categories = ({ onMenuClick }) => {
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-white/5 w-full max-w-sm p-6 text-center">
                         <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
-                            <span className="material-symbols-outlined text-3xl text-red-500">warning</span>
+                            <AlertTriangle className="w-8 h-8 text-red-500" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete Category?</h3>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
@@ -405,7 +413,7 @@ const Categories = ({ onMenuClick }) => {
                             >
                                 {deletingId ? (
                                     <>
-                                        <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                         Deleting...
                                     </>
                                 ) : (

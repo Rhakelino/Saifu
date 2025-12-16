@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { signUp } from '../lib/authClient';
+import { Wallet, AlertCircle, Loader2, UserPlus } from 'lucide-react';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -51,7 +52,7 @@ const Register = () => {
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
-                        <span className="material-symbols-outlined text-4xl text-primary">account_balance_wallet</span>
+                        <Wallet className="w-10 h-10 text-primary" />
                     </div>
                     <h1 className="text-3xl font-black text-slate-900 dark:text-white">Create Account</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-2">Start your financial journey with Saifu.</p>
@@ -62,7 +63,7 @@ const Register = () => {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {error && (
                             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm flex items-center gap-2">
-                                <span className="material-symbols-outlined text-lg">error</span>
+                                <AlertCircle className="w-5 h-5" />
                                 {error}
                             </div>
                         )}
@@ -130,12 +131,12 @@ const Register = () => {
                         >
                             {isLoading ? (
                                 <>
-                                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                    <Loader2 className="w-6 h-6 animate-spin" />
                                     Creating account...
                                 </>
                             ) : (
                                 <>
-                                    <span className="material-symbols-outlined">person_add</span>
+                                    <UserPlus className="w-6 h-6" />
                                     Create Account
                                 </>
                             )}

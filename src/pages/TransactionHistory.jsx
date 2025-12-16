@@ -3,6 +3,8 @@ import Header from '../components/Header';
 import { useData } from '../context/DataContext';
 import { transactionsAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import { Download, Edit, Trash2, AlertTriangle, Loader2, Receipt, Check, X } from 'lucide-react';
+import { getIcon } from '../lib/iconMap';
 
 // Format number to Indonesian Rupiah
 const formatCurrency = (amount, type) => {
@@ -57,7 +59,7 @@ const EditTransactionModal = ({ transaction, categories, onClose, onSave }) => {
                         onClick={onClose}
                         className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 flex items-center justify-center transition-colors"
                     >
-                        <span className="material-symbols-outlined text-slate-500 dark:text-white/50">close</span>
+                        <X className="w-5 h-5 text-slate-500 dark:text-white/50" />
                     </button>
                 </div>
 
@@ -139,12 +141,12 @@ const EditTransactionModal = ({ transaction, categories, onClose, onSave }) => {
                     >
                         {saving ? (
                             <>
-                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                <Loader2 className="w-4 h-4 animate-spin" />
                                 Saving...
                             </>
                         ) : (
                             <>
-                                <span className="material-symbols-outlined text-sm">check</span>
+                                <Check className="w-4 h-4" />
                                 Save Changes
                             </>
                         )}
@@ -307,7 +309,7 @@ const TransactionHistory = ({ onMenuClick }) => {
                         onClick={exportToCSV}
                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-white/5 text-slate-700 dark:text-white font-semibold hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
                     >
-                        <span className="material-symbols-outlined text-lg">download</span>
+                        <Download className="w-5 h-5" />
                         Export CSV
                     </button>
                 </div>
@@ -387,13 +389,13 @@ const TransactionHistory = ({ onMenuClick }) => {
                 {/* Transaction List */}
                 <div className="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-white/5 overflow-hidden">
                     {loading ? (
-                        <div className="p-8 text-center">
-                            <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-white/20 animate-spin">progress_activity</span>
+                        <div className="p-8 text-center flex flex-col items-center">
+                            <Loader2 className="w-10 h-10 text-slate-300 dark:text-white/20 animate-spin" />
                             <p className="text-slate-500 mt-2">Loading transactions...</p>
                         </div>
                     ) : transactions.length === 0 ? (
-                        <div className="p-8 text-center">
-                            <span className="material-symbols-outlined text-5xl text-slate-300 dark:text-white/20">receipt_long</span>
+                        <div className="p-8 text-center flex flex-col items-center">
+                            <Receipt className="w-12 h-12 text-slate-300 dark:text-white/20" />
                             <p className="text-slate-500 dark:text-slate-400 mt-2">No transactions found</p>
                         </div>
                     ) : (
@@ -417,12 +419,10 @@ const TransactionHistory = ({ onMenuClick }) => {
                                                         className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
                                                         style={{ backgroundColor: tx.categoryColor ? `${tx.categoryColor}20` : '#6b728020' }}
                                                     >
-                                                        <span
-                                                            className="material-symbols-outlined text-lg"
-                                                            style={{ color: tx.categoryColor || '#6b7280' }}
-                                                        >
-                                                            {tx.categoryIcon || 'receipt'}
-                                                        </span>
+                                                        {(() => {
+                                                            const Icon = getIcon(tx.categoryIcon || 'receipt');
+                                                            return <Icon className="w-5 h-5" style={{ color: tx.categoryColor || '#6b7280' }} />;
+                                                        })()}
                                                     </div>
                                                     <div className="min-w-0">
                                                         <p className="text-slate-900 dark:text-white font-medium text-sm truncate">
@@ -458,7 +458,7 @@ const TransactionHistory = ({ onMenuClick }) => {
                                                         onClick={() => setEditingTransaction(tx)}
                                                         className="opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white flex items-center justify-center transition-all"
                                                     >
-                                                        <span className="material-symbols-outlined text-sm">edit</span>
+                                                        <Edit className="w-4 h-4" />
                                                     </button>
                                                     <button
                                                         onClick={() => setShowDeleteConfirm(tx.id)}
@@ -466,9 +466,9 @@ const TransactionHistory = ({ onMenuClick }) => {
                                                         className="opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white flex items-center justify-center transition-all disabled:opacity-50"
                                                     >
                                                         {deletingId === tx.id ? (
-                                                            <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
                                                         ) : (
-                                                            <span className="material-symbols-outlined text-sm">delete</span>
+                                                            <Trash2 className="w-4 h-4" />
                                                         )}
                                                     </button>
                                                 </div>
@@ -497,7 +497,7 @@ const TransactionHistory = ({ onMenuClick }) => {
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-white/5 w-full max-w-sm p-6 text-center">
                         <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
-                            <span className="material-symbols-outlined text-3xl text-red-500">warning</span>
+                            <AlertTriangle className="w-8 h-8 text-red-500" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete Transaction?</h3>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
@@ -518,7 +518,7 @@ const TransactionHistory = ({ onMenuClick }) => {
                             >
                                 {deletingId ? (
                                     <>
-                                        <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                         Deleting...
                                     </>
                                 ) : (

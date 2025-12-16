@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSession, signOut } from '../lib/authClient';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 const AuthContext = createContext();
 
@@ -49,7 +50,7 @@ export function AuthProvider({ children }) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-background-light dark:bg-background-dark">
                 <div className="flex flex-col items-center gap-4">
-                    <span className="material-symbols-outlined text-5xl text-primary animate-spin">progress_activity</span>
+                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
                     <p className="text-slate-500 dark:text-slate-400">Loading...</p>
                 </div>
             </div>

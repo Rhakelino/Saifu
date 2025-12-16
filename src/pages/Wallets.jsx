@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { getIcon, iconMap } from '../lib/iconMap';
+import { Plus, Edit, Trash2, Loader2, X, Wallet, AlertTriangle, Save } from 'lucide-react';
 import Header from '../components/Header';
 import { useData } from '../context/DataContext';
 import toast from 'react-hot-toast';
@@ -32,7 +34,7 @@ const walletTypes = [
     { value: 'credit_card', label: 'Credit Card', icon: 'credit_card' },
     { value: 'e_wallet', label: 'E-Wallet', icon: 'wallet' },
     { value: 'crypto', label: 'Crypto', icon: 'currency_bitcoin' },
-    { value: 'other', label: 'Other', icon: 'account_balance_wallet' },
+    { value: 'other', label: 'Other', icon: 'wallet' },
 ];
 
 const walletColors = [
@@ -178,7 +180,7 @@ const Wallets = ({ onMenuClick }) => {
                         onClick={openAddModal}
                         className="px-4 py-2 rounded-xl bg-primary text-[#10221d] font-bold hover:shadow-[0_0_20px_rgba(19,236,182,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
                     >
-                        <span className="material-symbols-outlined">add</span>
+                        <Plus className="w-5 h-5" />
                         Add Wallet
                     </button>
                 </div>
@@ -192,7 +194,7 @@ const Wallets = ({ onMenuClick }) => {
                     </div>
                 ) : wallets.length === 0 ? (
                     <div className="bg-white dark:bg-card-dark p-12 rounded-2xl border border-slate-200 dark:border-white/5 text-center">
-                        <span className="material-symbols-outlined text-6xl text-slate-300 dark:text-white/20 mb-4">account_balance_wallet</span>
+                        <Wallet className="w-16 h-16 text-slate-300 dark:text-white/20 mb-4 mx-auto" />
                         <p className="text-slate-500 dark:text-slate-400 text-lg">No wallets yet</p>
                         <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Create your first wallet to start tracking your finances</p>
                     </div>
@@ -213,7 +215,7 @@ const Wallets = ({ onMenuClick }) => {
                                             onClick={(e) => { e.stopPropagation(); openEditModal(wallet); }}
                                             className="h-8 w-8 rounded-full bg-white/20 hover:bg-primary text-white hover:text-black flex items-center justify-center transition-all"
                                         >
-                                            <span className="material-symbols-outlined text-sm">edit</span>
+                                            <Edit className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(wallet.id); }}
@@ -221,21 +223,27 @@ const Wallets = ({ onMenuClick }) => {
                                             className="h-8 w-8 rounded-full bg-white/20 hover:bg-red-500 text-white flex items-center justify-center transition-all disabled:opacity-50"
                                         >
                                             {deletingId === wallet.id ? (
-                                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
                                             ) : (
-                                                <span className="material-symbols-outlined text-sm">delete</span>
+                                                <Trash2 className="w-4 h-4" />
                                             )}
                                         </button>
                                     </div>
 
                                     <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
-                                        <span className="material-symbols-outlined text-6xl text-white">{wallet.icon || typeData.icon}</span>
+                                        {(() => {
+                                            const Icon = getIcon(wallet.icon || typeData.icon);
+                                            return <Icon className="w-16 h-16 text-white" />
+                                        })()}
                                     </div>
 
                                     <div className="relative z-10 flex flex-col h-full justify-between">
                                         <div className="flex justify-between items-start mb-8">
                                             <div className="bg-white/10 p-2 rounded-lg backdrop-blur-md">
-                                                <span className="material-symbols-outlined text-white">{wallet.icon || typeData.icon}</span>
+                                                {(() => {
+                                                    const Icon = getIcon(wallet.icon || typeData.icon);
+                                                    return <Icon className="w-6 h-6 text-white" />
+                                                })()}
                                             </div>
                                             {wallet.accountNumber && (
                                                 <p className="text-white/60 text-sm font-medium tracking-wider">**** {wallet.accountNumber.slice(-4)}</p>
@@ -260,7 +268,7 @@ const Wallets = ({ onMenuClick }) => {
                             className="min-h-[200px] bg-transparent border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group"
                         >
                             <div className="h-12 w-12 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-colors">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-black">add</span>
+                                <Plus className="w-6 h-6 text-slate-400 group-hover:text-black" />
                             </div>
                             <p className="text-slate-500 text-sm mt-3 font-medium group-hover:text-primary">Add New Wallet</p>
                         </button>
@@ -280,7 +288,7 @@ const Wallets = ({ onMenuClick }) => {
                                 onClick={() => { setShowModal(false); resetForm(); }}
                                 className="h-10 w-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
                             >
-                                <span className="material-symbols-outlined">close</span>
+                                <X className="w-6 h-6" />
                             </button>
                         </div>
 
@@ -308,24 +316,25 @@ const Wallets = ({ onMenuClick }) => {
                             <div>
                                 <label className="text-sm font-semibold text-slate-500 dark:text-[#9db9b2] mb-2 block">Type</label>
                                 <div className="grid grid-cols-3 gap-2">
-                                    {walletTypes.map(type => (
-                                        <button
-                                            key={type.value}
-                                            type="button"
-                                            onClick={() => handleTypeChange(type.value)}
-                                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${formData.type === type.value
-                                                ? 'border-primary bg-primary/10 ring-2 ring-primary'
-                                                : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#1c2724] hover:bg-slate-100 dark:hover:bg-[#283935]'
-                                                }`}
-                                        >
-                                            <span className={`material-symbols-outlined ${formData.type === type.value ? 'text-primary' : 'text-slate-400'}`}>
-                                                {type.icon}
-                                            </span>
-                                            <span className={`text-xs font-medium ${formData.type === type.value ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}`}>
-                                                {type.label}
-                                            </span>
-                                        </button>
-                                    ))}
+                                    {walletTypes.map(type => {
+                                        const Icon = getIcon(type.icon);
+                                        return (
+                                            <button
+                                                key={type.value}
+                                                type="button"
+                                                onClick={() => handleTypeChange(type.value)}
+                                                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${formData.type === type.value
+                                                    ? 'border-primary bg-primary/10 ring-2 ring-primary'
+                                                    : 'border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#1c2724] hover:bg-slate-100 dark:hover:bg-[#283935]'
+                                                    }`}
+                                            >
+                                                <Icon className={`w-6 h-6 ${formData.type === type.value ? 'text-primary' : 'text-slate-400'}`} />
+                                                <span className={`text-xs font-medium ${formData.type === type.value ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}`}>
+                                                    {type.label}
+                                                </span>
+                                            </button>
+                                        )
+                                    })}
                                 </div>
                             </div>
 
@@ -396,12 +405,12 @@ const Wallets = ({ onMenuClick }) => {
                                 >
                                     {isSubmitting ? (
                                         <>
-                                            <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
                                             {editingWallet ? 'Saving...' : 'Creating...'}
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined">{editingWallet ? 'save' : 'add'}</span>
+                                            {editingWallet ? <Save className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                                             {editingWallet ? 'Save Changes' : 'Create Wallet'}
                                         </>
                                     )}
@@ -417,7 +426,7 @@ const Wallets = ({ onMenuClick }) => {
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-white/5 w-full max-w-sm p-6 text-center">
                         <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
-                            <span className="material-symbols-outlined text-3xl text-red-500">warning</span>
+                            <AlertTriangle className="w-8 h-8 text-red-500" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete Wallet?</h3>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
@@ -438,7 +447,7 @@ const Wallets = ({ onMenuClick }) => {
                             >
                                 {deletingId ? (
                                     <>
-                                        <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                         Deleting...
                                     </>
                                 ) : (

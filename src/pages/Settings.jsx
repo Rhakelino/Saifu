@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
+import { User, Lock, Bell, Palette, CircleDollarSign, ChevronRight } from 'lucide-react';
 
 const Settings = ({ onMenuClick }) => {
     const navigate = useNavigate();
@@ -43,19 +44,19 @@ const Settings = ({ onMenuClick }) => {
             title: 'Account Preferences',
             items: [
                 {
-                    icon: "person",
+                    icon: User,
                     label: "Profile Information",
                     desc: "Update your account details",
                     action: handleProfile
                 },
                 {
-                    icon: "lock",
+                    icon: Lock,
                     label: "Security",
                     desc: "Two-factor authentication and password",
                     action: handleSecurity
                 },
                 {
-                    icon: "notifications",
+                    icon: Bell,
                     label: "Notifications",
                     desc: "Manage your alerts",
                     action: handleNotifications
@@ -66,13 +67,13 @@ const Settings = ({ onMenuClick }) => {
             title: 'App Settings',
             items: [
                 {
-                    icon: "palette",
+                    icon: Palette,
                     label: "Appearance",
                     desc: "Dark mode enabled by default",
                     action: handleAppearance
                 },
                 {
-                    icon: "currency_exchange",
+                    icon: CircleDollarSign,
                     label: "Currency",
                     desc: "Indonesian Rupiah (IDR)",
                     action: handleCurrency
@@ -101,13 +102,13 @@ const Settings = ({ onMenuClick }) => {
                                         className="w-full flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-colors text-left group"
                                     >
                                         <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-surface-dark flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">
-                                            <span className="material-symbols-outlined">{item.icon}</span>
+                                            <item.icon className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-slate-900 dark:text-white font-medium">{item.label}</p>
                                             <p className="text-slate-500 text-sm">{item.desc}</p>
                                         </div>
-                                        <span className="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
+                                        <ChevronRight className="w-5 h-5 text-slate-400 dark:text-slate-600" />
                                     </button>
                                 ))}
                             </div>
